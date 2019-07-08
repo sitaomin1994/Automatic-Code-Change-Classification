@@ -1,12 +1,14 @@
-import pandas as pd
-import psycopg2
-from extract_commit_history import ExtractHistory
 import os
 from os import path
 import subprocess
 from pymongo import MongoClient
+import asyncio
 import json
+import psycopg2
+import pandas as pd
+from extract_commit_history import ExtractHistory
 import pprint
+
 
 class CreateTable():
     def __init__(self, dbname, user, passwd, host):
@@ -42,12 +44,15 @@ class CreateTable():
         pwd = os.getcwd()
         json_dir = pwd + "/tmp_JSON"
         json_files = os.listdir(json_dir)
+        loop = asyncio.get_event_loop()
         for application, id_list in df_dict.items():
             for id in id_list:
                 id_name = application + "_" + id + ".json"
                 if id_name not in json_files:
                     extractor = ExtractHistory(application, id)
-                    extractor.clone()
+                    loop.run_until_complete(extractor.clone())
+        
+        
             self.delete_repo(application)
 
     def delete_repo(self, repo_name):

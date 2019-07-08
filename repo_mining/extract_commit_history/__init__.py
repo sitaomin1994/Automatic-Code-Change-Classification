@@ -5,6 +5,8 @@ import re
 import json
 import time
 from os import path
+import aiofiles as aiof 
+import asyncio
 # Title: Extracting Commit History
 # Perquisites: Ensure that gumtree is installed - https://github.com/GumTreeDiff/gumtree/releases and
 #              added to system path:
@@ -126,7 +128,7 @@ class ExtractHistory:
                 operations.append(sub_operations)
         return roots, operations
 
-    def write_JSON(self, prev_dirs, curr_dirs):
+    async def write_JSON(self, prev_dirs, curr_dirs):
 
         # compute gumtree cluster and diff and store values in .txt files
         for prev_java, curr_java in zip(prev_dirs.values(), curr_dirs.values()):
@@ -138,14 +140,16 @@ class ExtractHistory:
             output = subprocess.Popen(cmd_cluster, stdout=subprocess.PIPE).communicate()[0]
             cluster_file = curr_file.split("_")[0] + "_cluster.txt"
             if not path.exists(cluster_file):
-                with open(cluster_file, "wb") as f:
-                    f.write(output)
+                async with aiof.open(cluster_file, "wb") as f:
+                    await f.write(output)
+            
 
             output = subprocess.Popen(cmd_diff, stdout=subprocess.PIPE).communicate()[0]
             diff_file = curr_file.split("_")[0] + "_diff.txt"
             if not path.exists(diff_file):
-                with open(diff_file, "wb") as f:
-                    f.write(output)
+                async with aiof.open(diff_file, "wb") as f:
+                    await f.write(output)
+
 
         # create json object
         data = {}
@@ -205,16 +209,20 @@ class ExtractHistory:
 
         # store json files in tmp folder
         json_path = json_dir + "/" + self.application + "_" + self.csha + ".json"
+        data_json = json.dumps(data, ensure_ascii=False)
         if not path.exists(json_path):
-            with open(json_path, "w") as f:
-                json.dump(data, f)
+            async with aiof.open(json_path, "w") as f:
+                await f.write(data_json)
+                
+                
+        
         return json_path
 
     def delete_JSON(self, pwd):
         cmd = ["rm", pwd + self.csha + ".json"]
         subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
 
-    def clone(self):
+    async def clone(self):
         # make directory folder
         pwd = os.getcwd()
 
@@ -285,7 +293,7 @@ class ExtractHistory:
         prev_dirs, curr_dirs = self.create_javaFiles(pwd, prev_content, curr_content)
 
         # create JSON obj
-        json_path = self.write_JSON(prev_dirs, curr_dirs)
+        json_path = await self.write_JSON(prev_dirs, curr_dirs)
 
         with open(json_path) as f:
             data = json.load(f)
@@ -294,6 +302,7 @@ class ExtractHistory:
         self.delete_tmpFiles(pwd, prev_dirs, curr_dirs)
 
         print("finished mining repository...{}: {}".format(self.application, self.csha))
+    
         return data
 
     def get_flags(self):
