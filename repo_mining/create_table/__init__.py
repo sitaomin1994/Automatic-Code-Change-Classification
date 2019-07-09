@@ -25,7 +25,7 @@ class CreateTable():
             print("connecting to ...", self.dbname)
             conn = psycopg2.connect("dbname='{}' user='{}' password='{}' host='{}'".format \
                                         (self.dbname, self.user, self.passwd, self.host))
-            df = pd.read_sql("SELECT application, csha FROM commits", conn)
+            df = pd.read_sql("SELECT application, csha FROM commits WHERE csha <> 'c3f90581522d85a5e012690fad32f44939acd4a0'", conn)
             df_dict = dict()
             for application, sha in zip(df["application"].values, df["csha"].values):
                 if df_dict.get(application) is None:
@@ -44,16 +44,32 @@ class CreateTable():
         pwd = os.getcwd()
         json_dir = pwd + "/tmp_JSON"
         json_files = os.listdir(json_dir)
+        json_files.sort()
         loop = asyncio.get_event_loop()
         for application, id_list in df_dict.items():
             for id in id_list:
                 id_name = application + "_" + id + ".json"
-                if id_name not in json_files:
+                if not self.search_dir(json_files, id_name):
                     extractor = ExtractHistory(application, id)
                     loop.run_until_complete(extractor.clone())
         
         
             self.delete_repo(application)
+
+    def search_dir(self, tmp_dir, dir):
+        first = 0
+        last = len(tmp_dir) - 1
+        found = False
+        while first <= last and not found:
+            midpoint = first + (last - first)//2
+            if dir == tmp_dir[midpoint]:
+                found = True
+            else:
+                if dir < tmp_dir[midpoint]:
+                    last = midpoint - 1
+                else:
+                    first = midpoint + 1
+        return found
 
     def delete_repo(self, repo_name):
         pwd = os.getcwd()

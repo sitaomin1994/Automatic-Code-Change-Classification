@@ -7,6 +7,7 @@ import time
 from os import path
 import aiofiles as aiof 
 import asyncio
+from ParallelDelete import ParallelDelete
 # Title: Extracting Commit History
 # Perquisites: Ensure that gumtree is installed - https://github.com/GumTreeDiff/gumtree/releases and
 #              added to system path:
@@ -78,7 +79,7 @@ class ExtractHistory:
             cmd = ["rm", rm_prev + ".java"]
             cmd2 = ["rm", rm_curr + ".java"]
             subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
-            time.sleep(2)
+            # time.sleep(2)
             subprocess.Popen(cmd2, stdout=subprocess.PIPE).communicate()[0]
 
         # Delete txt files
@@ -88,7 +89,7 @@ class ExtractHistory:
             cmd = ["rm", rm_cluster]
             cmd2 = ["rm", rm_diff]
             subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
-            time.sleep(2)
+            # time.sleep(2)
             subprocess.Popen(cmd2, stdout=subprocess.PIPE).communicate()[0]
 
         # check if all files were deleted
@@ -212,15 +213,9 @@ class ExtractHistory:
         data_json = json.dumps(data, ensure_ascii=False)
         if not path.exists(json_path):
             async with aiof.open(json_path, "w") as f:
-                await f.write(data_json)
-                
-                
-        
-        return json_path
+                await f.write(data_json)      
 
-    def delete_JSON(self, pwd):
-        cmd = ["rm", pwd + self.csha + ".json"]
-        subprocess.Popen(cmd, stdout=subprocess.PIPE).communicate()[0]
+        return json_path
 
     async def clone(self):
         # make directory folder
@@ -300,6 +295,9 @@ class ExtractHistory:
 
         # silently delete java files and text files
         self.delete_tmpFiles(pwd, prev_dirs, curr_dirs)
+        # silent_delete = ParallelDelete(pwd, prev_dirs=prev_dirs, curr_dirs=curr_dirs)
+        # silent_delete.run()
+        # time.sleep(5)
 
         print("finished mining repository...{}: {}".format(self.application, self.csha))
     
