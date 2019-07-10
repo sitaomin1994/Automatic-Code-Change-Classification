@@ -50,8 +50,14 @@ class CreateTable():
             for id in id_list:
                 id_name = application + "_" + id + ".json"
                 if not self.search_dir(json_files, id_name):
-                    extractor = ExtractHistory(application, id)
-                    loop.run_until_complete(extractor.clone())
+                    try:
+                        extractor = ExtractHistory(application, id)
+                        loop.run_until_complete(extractor.clone())
+                    except UnicodeEncodeError: 
+                        print("unicode error detected in ... ", id_name)
+                        with open("unicode_error_commits.txt", "a") as f: 
+                            f.write(id_name)
+                        continue
         
         
             self.delete_repo(application)
