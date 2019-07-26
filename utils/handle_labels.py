@@ -197,7 +197,7 @@ def number_of_labels(df, target_columns):
     sns.set(font_scale = 1)
     plt.figure(figsize=(10,6))
     ax = sns.barplot(multiLabel_counts.index, multiLabel_counts.values)
-    plt.title("Commiyds having multiple labels ")
+    plt.title("Commits having multiple labels ")
     plt.ylabel('Number of commits', fontsize=15)
     plt.xlabel('Number of labels', fontsize=15)
 
