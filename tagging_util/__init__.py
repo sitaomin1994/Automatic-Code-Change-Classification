@@ -9,7 +9,6 @@ import json
 ## prelabeling
 
 class Tagger(): 
-	def __init__(self):
 
 	def writing_to_csv(self, df, filename): 
 		if os.path.exists(filename): 
