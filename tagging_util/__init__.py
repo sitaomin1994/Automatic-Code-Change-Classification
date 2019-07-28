@@ -93,8 +93,8 @@ class Tagger():
 		for idx, column in enumerate(df.columns): 
 			col[column] = idx
 
-		if col.get(label) is None: 
-			df[label] = 0
+		if col.get(label_name) is None: 
+			df[label_name] = 0
 			col = dict()
 			for idx, column in enumerate(df.columns): 
 				col[column] = idx
@@ -141,11 +141,7 @@ class Tagger():
 		return df
 
 	def getlabels(self, df, csha):
-	    """
-        :param df: Current DataFrame
-        :param csha: commit sha 
-        :return prints commit labels 
-		""" 
+		
 		col = dict()
 		for idx, column in enumerate(df.columns): 
 			col[column] = idx
