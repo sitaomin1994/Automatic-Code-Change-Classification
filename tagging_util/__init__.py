@@ -53,14 +53,15 @@ class Tagger():
 								continue 
 		return df
 
-	def get_commit(self, df, prelabel, label):
+	def get_commit(self, df, prelabel, label, tagger_id):
 		"""
 
 		   :param df: Current DataFrame
 		   :param filename: Filename for the keys words dictionary 
 		   :param prelabels: label in the dictionary that you want to name
 		   :param lable: Either 1 or 0, this is the label you can the commit for 
-		   :return prints commit link of a random csha with specified prelabel and label  
+		   :param tagger_id: unique tagger id ["jc": Jincheng, "kc": Kelechi, "jy": Jinying]
+		   :return prints commit link of a random csha with specified prelabel and label and tagger_id  
 		"""
 
 		col = dict()
@@ -77,7 +78,7 @@ class Tagger():
 			df["commit link"] = link 
 
 		for row, commit_link in enumerate(df["commit link"]):
-			if df.iloc[row, col["check"]] == "nc" and df.iloc[row, col[prelabel]] == label:
+			if df.iloc[row, col["check"]] == "nc" and df.iloc[row, col[prelabel]] == label and df.iloc[row, col["Tagger ID"]] == tagger_id:
 				return commit_link
 
 	def label(self, df, label_name, csha, label):
