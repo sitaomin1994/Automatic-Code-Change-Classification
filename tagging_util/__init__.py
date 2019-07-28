@@ -72,7 +72,7 @@ class Tagger():
 
 		if col.get("commit link") is None: 
 			org = df["Commit ID"].str.split("-").str[0]
-			app = df["Commit ID"].str.split("-").str[1].str.split("_").str[0]
+			app = df["Commit ID"].str.split("-", 1).str[1].str.split("_").str[0]
 			link = "https://github.com/" + org + "/" + app + "/commit/" + df["csha"]
 			df["commit link"] = link 
 
